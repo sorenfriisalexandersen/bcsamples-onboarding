@@ -1,4 +1,4 @@
-permissionset 70074170 BioSample
+permissionset 70074170 MS_BioSample
 {
     Access = Public;
     Assignable = true;
