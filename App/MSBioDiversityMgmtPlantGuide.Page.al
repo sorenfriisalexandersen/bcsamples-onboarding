@@ -155,6 +155,8 @@ page 70074176 MS_BioDiversityMgmtPlantGuide
                 begin
                     FinishAction();
                 end;
+
+
             }
         }
     }
@@ -204,7 +206,10 @@ page 70074176 MS_BioDiversityMgmtPlantGuide
     end;
 
     local procedure FinishAction();
+    var
+        GuidedExperience: Codeunit "Guided Experience";
     begin
+        GuidedExperience.CompleteAssistedSetup(ObjectType::Page, page::MS_BioDiversityMgmtPlantGuide);
         CurrPage.Close();
     end;
 
@@ -345,7 +350,8 @@ page 70074176 MS_BioDiversityMgmtPlantGuide
                 Plant.Description := Rec.Description;
                 Plant.Family := Rec.Family;
                 Plant.Occurrences := Random(999);
-                Plant.Insert();
+                if not Plant.Insert() then
+                    Plant.Modify();
             until Rec.Next() = 0;
     end;
 }

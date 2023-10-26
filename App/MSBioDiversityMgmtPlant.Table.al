@@ -48,5 +48,9 @@ table 70074170 MS_BioDiversityMgmtPlant
         {
             Clustered = TRUE;
         }
+        key(Occurrence; Occurrences)
+        {
+
+        }
     }
 }

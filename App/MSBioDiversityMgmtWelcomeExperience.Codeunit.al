@@ -15,10 +15,12 @@ codeunit 70074170 MS_CreateWelcomeExperience
         //When the user answered questions in the profiler (on your web site), ask them what they're looking for, and load a Guided Experience Item that confirms they've gone to the right place
         InterestShortTitleTxt: Label 'Become a champion';
         InterestTitleTxt: Label 'Bio Diversity Mgmt. will assist you';
-        InterestDescriptionTxt: Label 'In this short video we will show you how Bio Diversity Management can help you become a champion for bio diversity and help make the World a better place.';
-
+        InterestDescriptionTxt: Label 'In this short video we will show you how Bio Diversity Management can help you become a champion for bio diversity and help make the world a better place.';
         OnboardingSampleValueTxt: Label 'bcsamples-onboarding', Locked = true;
-
+        TakeTheNextStepURL: text;
+        TakeTheNextStepTitle: text;
+        TakeTheNextStepShortTitle: text;
+        TakeTheNextStepDescription: text;
 
     //This event is used to set the sign-up context.
     //This happens at system initialization.
@@ -106,7 +108,6 @@ codeunit 70074170 MS_CreateWelcomeExperience
 
     end;
 
-
     //This event lets you override the texts on the welcome banner. Use it to create that warm fuzzy feeling for users who see the role center for the first time
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Checklist Banner", 'OnBeforeUpdateBannerLabels', '', false, false)]
     local procedure OnBeforeUpdateBannerLabels(var IsHandled: Boolean; IsEvaluationCompany: Boolean; var TitleTxt: Text; var TitleCollapsedTxt: Text; var HeaderTxt: Text; var HeaderCollapsedTxt: Text; var DescriptionTxt: Text)
@@ -121,7 +122,7 @@ codeunit 70074170 MS_CreateWelcomeExperience
 
         TitleTxt := 'Welcome ' + User."Full Name" + '!';
         TitleCollapsedTxt := 'Continue your experience';
-        HeaderTxt := 'Want to help save the World? So do we! 🌍';
+        HeaderTxt := 'Want to help save the world? So do we!';
         HeaderCollapsedTxt := 'Continue setting up your system';
         DescriptionTxt := 'You started a trial for Business Central with Bio Diversity Management. We hope you''ll love it!';
     end;
@@ -130,10 +131,10 @@ codeunit 70074170 MS_CreateWelcomeExperience
     //Here we create the dictionary of texts used for the Spotlight tour where we call out the Excel integration (which we use on the Vendor List)
     local procedure GetVendorListSpotlightTourDictionary(var SpotlightTourTexts: Dictionary of [Enum "Spotlight Tour Text", Text])
     var
-        EditPlantsInExcelStep1TitleTxt: Label 'Easily analyse any list data in Excel. For example this list of plants.';
+        EditPlantsInExcelStep1TitleTxt: Label 'Easily analyse any list data in Excel.';
         EditPlantsInExcelStep1DescrTxt: Label 'You can export any list to Excel - even Excel online. You can also edit data in Excel';
-        EditPlantsInExcelStep2TitleTxt: Label 'Here you''ll find actions to open lists and cards in other applications';
-        EditPlantsInExcelStep2DescrTxt: Label 'Try editing this list of plants in Excel and import it back into Business Central';
+        EditPlantsInExcelStep2TitleTxt: Label 'We integrate with your favorite apps';
+        EditPlantsInExcelStep2DescrTxt: Label 'For example, you can easily edit this list of **plants** in Excel and import it back into Business Central';
         SpotlightTourText: Enum "Spotlight Tour Text";
     begin
         SpotlightTourTexts.Add(SpotlightTourText::Step1Title, EditPlantsInExcelStep1TitleTxt);
@@ -156,7 +157,9 @@ codeunit 70074170 MS_CreateWelcomeExperience
         Checklist.Insert(Page::MS_BioDiversityMgmtPlants, SpotlightTourType::"Open in Excel", 3000, AllProfile, false);
         Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Report, Report::MS_BioDiversityPlant, 4000, AllProfile, false);
         Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::MS_BioDiversityMgmtPlants, 5000, AllProfile, false);
-        Checklist.Insert(GuidedExperienceType::Video, 'https://www.youtube.com/embed/nqM79hlHuOs', 6000, AllProfile, false);
+        //Checklist.Insert(GuidedExperienceType::Video, 'https://www.youtube.com/embed/nqM79hlHuOs', 6000, AllProfile, false);
+        Checklist.Insert(GuidedExperienceType::Learn, TakeTheNextStepURL, 6000, AllProfile, false);
+        //Checklist.Insert(GuidedExperienceType::"Application Feature", ObjectType::Codeunit, Codeunit::MS_BioDiversityMgmtApps, 7000, AllProfile, false);
     end;
 
     internal procedure AddGuidedExperienceItems()
@@ -183,6 +186,7 @@ codeunit 70074170 MS_CreateWelcomeExperience
         PlantsPageTitle: text;
         PlantsPageShortTitle: text;
         PlantsPageDescription: text;
+
     begin
         //Add our Guided Experience Items we want to potentially add to the checklist
         //Add the guided experience items. Note, that here we just load three different videos for the "system", "users" and "interest" questions from the profiler
@@ -202,6 +206,10 @@ codeunit 70074170 MS_CreateWelcomeExperience
         PlantsPageTitle := 'Manage your plants lifecycle here';
         PlantsPageShortTitle := 'Plants lifecycle';
         PlantsPageDescription := 'Manage and analyze your plants here, so you are always on top of the health of the ecosystem you are managing.';
+        TakeTheNextStepURL := 'https:://<someURLWhereTheProspectCanContactYou>';
+        TakeTheNextStepTitle := 'Want to learn more?';
+        TakeTheNextStepShortTitle := 'We are ready to help you';
+        TakeTheNextStepDescription := 'Contact us here if you want to learn more about Bio Diversity Management on Business Central. We can get you up and running in no time.';
 
         //Clean up before we add
         GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::MS_BioDiversityMgmtInsectGuide);
@@ -217,14 +225,43 @@ codeunit 70074170 MS_CreateWelcomeExperience
         GuidedExperience.InsertApplicationFeature(BioDiversityMgmtSetuplistTitle, BioDiversityMgmtSetuplistShortTitle, BioDiversityMgmtSetuplistDescription, 1, ObjectType::Codeunit, Codeunit::MS_BioDiversityMgmtSetupList);
         GuidedExperience.InsertApplicationFeature(PlantReportTitle, PlantReportShortTitle, PlantReportDescription, 1, ObjectType::Report, report::MS_BioDiversityPlant);
         GuidedExperience.InsertTour(PlantsPageTitle, PlantsPageShortTitle, PlantsPageDescription, 3, Page::MS_BioDiversityMgmtPlants);
+        GuidedExperience.InsertLearnLink(TakeTheNextStepShortTitle, TakeTheNextStepTitle, TakeTheNextStepDescription, 2, TakeTheNextStepURL);
+        //GuidedExperience.InsertApplicationFeature('Check out this app', 'Get inspired', 'Bio Diversity Management works great with the X solution from Y. Install it here!', 2, ObjectType::Codeunit, Codeunit::MS_BioDiversityMgmtApps);
 
+    end;
+
+    internal procedure RegisterOnboardingCriteria()
+    var
+        Company: Record Company;
+        OnboardingSignal: Codeunit "Onboarding Signal";
+        EnvironmentInfo: Codeunit "Environment Information";
+        OnboardingSignalType: Enum "Onboarding Signal Type";
+    begin
+        if not Company.Get(CompanyName()) then
+            exit;
+
+        OnboardingSignal.RegisterNewOnboardingSignal(Company.Name, OnboardingSignalType::"Bio Diversity Mgmt.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"User Triggers", 'OnAfterUserInitialization', '', false, false)]
     local procedure OnAfterUserInitialization()
+    var
+        UserLogins: Codeunit "User Login Time Tracker";
     begin
-        SetCurrentUserRole();
+        if UserLogins.IsFirstLogin(UserSecurityId()) then
+            SetCurrentUserRole();
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure OnAfterLogin()
+    var
+        UserLogins: Codeunit "User Login Time Tracker";
+    begin
+        if UserLogins.IsFirstLogin(UserSecurityId()) then
+            SetCurrentUserRole();
+    end;
+
+
 
     internal procedure GetThisAppID(): guid
     begin
@@ -234,7 +271,15 @@ codeunit 70074170 MS_CreateWelcomeExperience
     internal procedure SetCurrentUserRole()
     var
         UserPersonalization: Record "User Personalization";
+        MyNotification: Notification;
     begin
+
+
+        MyNotification.Scope := NotificationScope::LocalScope;
+        MyNotification.Scope := NotificationScope::GlobalScope;
+
+
+
         if not UserPersonalization.Get(UserSecurityId()) then begin
             UserPersonalization."User SID" := UserSecurityId();
             UserPersonalization."User ID" := UserId();

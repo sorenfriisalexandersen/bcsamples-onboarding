@@ -4,6 +4,7 @@ query 70074170 MS_BioDiversityMgmtPlants
     Caption = 'Top Plants';
     DataAccessIntent = ReadOnly;
     QueryCategory = 'Plants';
+    UsageCategory = ReportsAndAnalysis;
     OrderBy = descending(Occurrences);
 
     AboutTitle = 'Analyse Top Plants';
@@ -30,7 +31,6 @@ query 70074170 MS_BioDiversityMgmtPlants
             column(Occurrences; Occurrences)
             {
             }
-
         }
     }
 
